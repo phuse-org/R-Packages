@@ -1,10 +1,3 @@
-library(ggplot2)
-library(data.table)
-library(gridExtra)
-library(Hmisc)
-library(tools)
-library(devtools)
-
 
 #' BDS_Box_ObsChg
 #'
@@ -41,7 +34,7 @@ library(devtools)
 #' @import tools
 #' @import gridExtra
 #' @import data.table
-BDS_Box_ObsChg<-function(bdsdset, treatmentname, useshortnames = c(TRUE,FALSE), oldnames, newnames,usepopflag = c(TRUE,FALSE), popflag, testname, yaxislabel, selectedvisits, perpage, dignum, redoutliers = c(TRUE, FALSE), horizontallines = c(TRUE,FALSE), enterlimits= c(TRUE,FALSE), ANRLO, ANRHI, outputdirectory, filetype = c("PNG","TIFF","JPEG"),  pixelwidth, pixelheight, outputfontsize, charttitle){
+BDS__Box_ObsChg<-function(bdsdset, treatmentname, useshortnames = c(TRUE,FALSE), oldnames, newnames,usepopflag = c(TRUE,FALSE), popflag, testname, yaxislabel, selectedvisits, perpage, dignum, redoutliers = c(TRUE, FALSE), horizontallines = c(TRUE,FALSE), enterlimits= c(TRUE,FALSE), ANRLO, ANRHI, outputdirectory, filetype = c("PNG","TIFF","JPEG"),  pixelwidth, pixelheight, outputfontsize, charttitle){
 
 
 testresultsread <- bdsdset
@@ -149,7 +142,13 @@ for(i in 1:visitsplits) {
   # horizontal line at 0
   chgp3 <- chgp2 + geom_hline(yintercept = 0, colour = "red")
 
-
+  if(enterlimits == TRUE){
+    chgp4 <- chgp2 + geom_hline(yintercept = c(ANRLO,ANRHI), colour = "red")
+    chgpall <- chgp3 + geom_hline(yintercept = c(ANRLO,ANRHI), colour = "red")
+  } else if (enterlimits == FALSE) {
+    chgp4 <- chgp2 + geom_hline(yintercept = c(testresults$ANRLO,testresults$ANRHI), colour = "red")
+    chgpall <- chgp3 + geom_hline(yintercept = c(testresults$ANRLO,testresults$ANRHI), colour = "red")
+  }
 
   #call summary table function
   chgsummary <- buildtable(avalue = quote(CHG), dfname= quote(testresults), by1 = "AVISITN", by2 = "TREATMENT", dignum)[order(AVISITN, TREATMENT)]
@@ -166,13 +165,13 @@ for(i in 1:visitsplits) {
     #Output to TIFF
     tiff(file.path(outputdirectory,paste("plot",i,".TIFF",sep = "" )), width = pixelwidth, height = pixelheight, units = "px", pointsize = 12)
     if (redoutliers == TRUE & horizontallines == TRUE) {
-      grid.arrange(pall, chgp3, t1,chgt1, ncol = 2, nrow = 2)
+      grid.arrange(pall, chgpall, t1,chgt1, ncol = 2, nrow = 2)
     } else if (redoutliers == TRUE & horizontallines == FALSE) {
       grid.arrange(p3, chgp3, t1,chgt1, ncol = 2, nrow = 2)
     } else if (redoutliers == FALSE & horizontallines == TRUE) {
-      grid.arrange(p4, chgp3, t1,chgt1, ncol = 2, nrow = 2)
+      grid.arrange(p4, chgp4, t1,chgt1, ncol = 2, nrow = 2)
     } else {
-      grid.arrange(p2, chgp3, t1,chgt1, ncol = 2, nrow = 2)
+      grid.arrange(p2, chgp2, t1,chgt1, ncol = 2, nrow = 2)
     }
     dev.off()
   }
@@ -180,13 +179,13 @@ for(i in 1:visitsplits) {
     # Optionally, use JPEG
     jpeg(file.path(outputdirectory,paste("plot",i,".JPEG",sep = "" )), width = pixelwidth, height = pixelheight, units = "px", pointsize = 12)
     if (redoutliers == TRUE & horizontallines == TRUE) {
-      grid.arrange(pall,chgp3, t1,chgt1, ncol = 2, nrow = 2)
+      grid.arrange(pall,chgpall, t1,chgt1, ncol = 2, nrow = 2)
     } else if (redoutliers == TRUE & horizontallines == FALSE) {
       grid.arrange(p3, chgp3, t1,chgt1, ncol = 2, nrow = 2)
     } else if (redoutliers == FALSE & horizontallines == TRUE) {
-      grid.arrange(p4, chgp3, t1,chgt1, ncol = 2, nrow = 2)
+      grid.arrange(p4, chgp4, t1,chgt1, ncol = 2, nrow = 2)
     } else {
-      grid.arrange(p2, chgp3, t1,chgt1, ncol = 2, nrow = 2)
+      grid.arrange(p2, chgp2, t1,chgt1, ncol = 2, nrow = 2)
     }
     dev.off()
   }
@@ -194,13 +193,13 @@ for(i in 1:visitsplits) {
     # Optionally, use PNG
     png(file.path(outputdirectory,paste("plot",i,".PNG",sep = "" )), width = pixelwidth, height = pixelheight, units = "px", pointsize = 12)
     if (redoutliers == TRUE & horizontallines == TRUE) {
-      grid.arrange(pall, chgp3, t1,chgt1, ncol = 2, nrow = 2)
+      grid.arrange(pall, chgpall, t1,chgt1, ncol = 2, nrow = 2)
     } else if (redoutliers == TRUE & horizontallines == FALSE) {
       grid.arrange(p3, chgp3, t1,chgt1, ncol = 2, nrow = 2)
     } else if (redoutliers == FALSE & horizontallines == TRUE) {
-      grid.arrange(p4, chgp3, t1,chgt1, ncol = 2, nrow = 2)
+      grid.arrange(p4, chgp4, t1,chgt1, ncol = 2, nrow = 2)
     } else {
-      grid.arrange(p2, tchgp3, t1,chgt1, ncol = 2, nrow = 2)
+      grid.arrange(p2, tchgp2, t1,chgt1, ncol = 2, nrow = 2)
     }
     dev.off()
   }
